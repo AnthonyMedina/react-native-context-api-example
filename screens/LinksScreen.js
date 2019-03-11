@@ -1,6 +1,7 @@
 import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
-import { ExpoLinksView } from '@expo/samples';
+import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import { MonoText } from '../components/StyledText';
+import MyContext from '../context-example';
 
 export default class LinksScreen extends React.Component {
   static navigationOptions = {
@@ -10,9 +11,16 @@ export default class LinksScreen extends React.Component {
   render() {
     return (
       <ScrollView style={styles.container}>
-        {/* Go ahead and delete ExpoLinksView and replace it with your
-           * content, we just wanted to provide you with some helpful links */}
-        <ExpoLinksView />
+        <View style={styles.getStartedContainer}>
+          <MyContext.Consumer>
+            {({ text }) => (
+              <Text style={styles.getStartedText}>
+                See if the values from context change too:
+                <MonoText style={styles.codeHighlightText}>{text}</MonoText>
+              </Text>
+            )}
+          </MyContext.Consumer>
+        </View>
       </ScrollView>
     );
   }

@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Image,
   Platform,
   ScrollView,
   StyleSheet,
@@ -8,11 +7,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { WebBrowser } from 'expo';
-
 import { MonoText } from '../components/StyledText';
 
-export default class HomeScreen extends React.Component {
+// 1. import your context into any file you want to use it
+import MyContext from '../context-example';
+
+class HomeScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
@@ -20,82 +20,52 @@ export default class HomeScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          <View style={styles.welcomeContainer}>
-            <Image
-              source={
-                __DEV__
-                  ? require('../assets/images/robot-dev.png')
-                  : require('../assets/images/robot-prod.png')
-              }
-              style={styles.welcomeImage}
-            />
-          </View>
-
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}
+        >
           <View style={styles.getStartedContainer}>
-            {this._maybeRenderDevelopmentModeWarning()}
-
-            <Text style={styles.getStartedText}>Get started by opening</Text>
-
-            <View style={[styles.codeHighlightContainer, styles.homeScreenFilename]}>
-              <MonoText style={styles.codeHighlightText}>screens/HomeScreen.js</MonoText>
-            </View>
-
-            <Text style={styles.getStartedText}>
-              Change this text and your app will automatically reload.
-            </Text>
+            {/*
+              2. If you want to use the values from your context,
+              wrap that place in a consumer
+            */}
+            <MyContext.Consumer>
+              {/* 
+                3. The consumer requires a function as a child
+                  This function will be called with the `value` that is passed to the nearest provider.
+              */}
+              {({ text }) => (
+                // 4. Here, I am just interested in the `text` part of the value, and destructure it
+                // 5. Anything returned from this function will be rendered
+                <Text style={styles.getStartedText}>
+                  Here is my context text:
+                  <MonoText style={styles.codeHighlightText}>{text}</MonoText>
+                </Text>
+              )}
+            </MyContext.Consumer>
           </View>
 
           <View style={styles.helpContainer}>
-            <TouchableOpacity onPress={this._handleHelpPress} style={styles.helpLink}>
-              <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
-            </TouchableOpacity>
+            {/* 
+              6. You can use the consumer wherever you like
+                although it might, in this case, be using it higher up -rather than twice.
+            */}
+            <MyContext.Consumer>
+              {({ toggleText }) => (
+                // 7. This time, I destructured the function to update the context.
+                // 8. This should be possible anywhere below the Provider in the tree
+                <TouchableOpacity onPress={toggleText} style={styles.helpLink}>
+                  <Text style={styles.helpLinkText}>
+                    Change my context text
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </MyContext.Consumer>
           </View>
         </ScrollView>
-
-        <View style={styles.tabBarInfoContainer}>
-          <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
-
-          <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-            <MonoText style={styles.codeHighlightText}>navigation/MainTabNavigator.js</MonoText>
-          </View>
-        </View>
       </View>
     );
   }
-
-  _maybeRenderDevelopmentModeWarning() {
-    if (__DEV__) {
-      const learnMoreButton = (
-        <Text onPress={this._handleLearnMorePress} style={styles.helpLinkText}>
-          Learn more
-        </Text>
-      );
-
-      return (
-        <Text style={styles.developmentModeText}>
-          Development mode is enabled, your app will be slower but you can use useful development
-          tools. {learnMoreButton}
-        </Text>
-      );
-    } else {
-      return (
-        <Text style={styles.developmentModeText}>
-          You are not in development mode, your app will run at full speed.
-        </Text>
-      );
-    }
-  }
-
-  _handleLearnMorePress = () => {
-    WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/guides/development-mode');
-  };
-
-  _handleHelpPress = () => {
-    WebBrowser.openBrowserAsync(
-      'https://docs.expo.io/versions/latest/guides/up-and-running.html#can-t-see-your-changes'
-    );
-  };
 }
 
 const styles = StyleSheet.create({
@@ -186,3 +156,10 @@ const styles = StyleSheet.create({
     color: '#2e78b7',
   },
 });
+
+// 9. can also access it's values on `this.context` if you do this:
+// HomeScreen.contextType = MyContext;
+
+// 10. See LinksScreen.js, where there are no more comments, but magic happens
+
+export default HomeScreen;
